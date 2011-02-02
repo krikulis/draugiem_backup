@@ -1,4 +1,5 @@
 from string import Template
+import datetime
 
 def stringify_user(user):
     return u"%s %s" % (user['name'], user['surname'])
@@ -15,7 +16,8 @@ class Writer(object):
                   <body>
                     <h1>$user</h1>
                 '''
-        html = Template(html).substitute(user = stringify_user(user))
+        self.user = stringify_user(user)
+        html = Template(html).substitute(user = self.user)
         self.handle.write(html.encode("utf-8"))
     def write(self, message,):
         html = u'''<div>$type $user</div>
@@ -23,12 +25,14 @@ class Writer(object):
                   <div>$subject</div>
 
                   <div>$text</div>'''
-        if message['type'] == 'in':
+        if message['type'] == 'inbox':
             type = u'no'
+            message['user'] = stringify_user(message['user'])
         else:
             type = u'kam'
-        html = Template(html).substitute(user = stringify_user(message['user']),
-                                        time = message['timestamp'],
+            message['user'] = self.user
+        html = Template(html).substitute(user = message['user'],
+                                        time = datetime.datetime.fromtimestamp(int(message['timestamp'])).isoformat(),
                                         subject = message['title'],
                                         text = message['text'],
                                         type = type)

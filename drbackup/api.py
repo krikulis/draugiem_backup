@@ -55,6 +55,7 @@ class MessageDownloader(object):
                 break
             if not len(r['users']):
                 break
+
             for user in r['users']:
                 self.users[user] = r['users'][user]
             messages = self.get_message_details(','.join(r['messages'].keys()), type)
@@ -88,16 +89,17 @@ class MessageDownloader(object):
             return item
         def append_outbox(item):
             item['type'] = 'outbox'
+            return item
         inbox = map(append_inbox, self.inbox)
         outbox = map(append_outbox, self.outbox)
         all = inbox + outbox
-
         for item in all:
-            if item is None:
-                continue
-            if item['uid'] not in messages:
-                messages[item['uid']] = []
-            messages[item['uid']].append(self.pretify_inbox_msg(item))
+            try:
+                if item['uid'] not in messages:
+                    messages[item['uid']] = []
+                messages[item['uid']].append(self.pretify_inbox_msg(item))
+            except:
+                pass
         for uid in messages:
             messages[uid].sort(key = lambda x: x['timestamp'])
         return messages
