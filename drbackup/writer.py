@@ -10,7 +10,7 @@ class Writer(object):
         html = u'''<!html >
                   <head>
                   <title>Sarakste ar $user</title>
-                  <meta http-equiv="Content-Type
+                  <meta http-equiv="Content-Type" value="text/html; charset=utf-8" />
                   </head>
                   <body>
                     <h1>$user</h1>
