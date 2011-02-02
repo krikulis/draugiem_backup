@@ -65,7 +65,6 @@ class MessageDownloader(object):
             current += 20
             if progress_callback:
                 progress_callback(current, total)
-                   
     def get_message_details(self, id, box):
         # ugly hack due API idiotic design
         # lot of unneeded info to retrieve msg text
@@ -74,10 +73,31 @@ class MessageDownloader(object):
                            ids = id)
         return result['messagedata']
     def pretify_inbox_msg(self, msg):
-        return {'from' : self.users[msg['uid']],
-                'to' : self.user_info,
+        return {'user' : self.users[msg['uid']],
                 'title' : msg['subject'],
                 'timestamp' : msg['created'],
-                'text' : msg['text']}
+                'text' : msg['text'],
+                'type' : msg['type']}
 
+    def get_user_info(self, uid):
+        return u"%s %s" % (self.users[uid]['name'], self.users[uid]['surname'])    
+    def get_all_messages(self):
+        messages = {}
+        def append_inbox(item):
+            item['type'] = 'inbox'
+            return item
+        def append_outbox(item):
+            item['type'] = 'outbox'
+        inbox = map(append_inbox, self.inbox)
+        outbox = map(append_outbox, self.outbox)
+        all = inbox + outbox
 
+        for item in all:
+            if item is None:
+                continue
+            if item['uid'] not in messages:
+                messages[item['uid']] = []
+            messages[item['uid']].append(self.pretify_inbox_msg(item))
+        for uid in messages:
+            messages[uid].sort(key = lambda x: x['timestamp'])
+        return messages
