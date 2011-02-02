@@ -16,8 +16,6 @@ class MessageDownloader(object):
         self.inbox = []
         self.outbox = []
         self.users = {}
-        self.total = 0
-        self.current = 0
     def login(self, username, password):
         response = self.call(action = 'login',
                   email = username,
@@ -32,12 +30,14 @@ class MessageDownloader(object):
         url = "%s?%s" % (DRAUGIEM_URL, urllib.urlencode(kwargs))
         response = urllib.urlopen(url).read()
         response = json.loads(response)
-        ir 'error' in response:
+        if 'error' in response:
             raise DraugiemException(response['error']['code'])
         return response
     def get_messages(self, type = 'in', progress_callback = None):
         page = 0 
         valid = True
+        total = 0
+        current = 0
         if type == 'in':
             li = self.inbox
         else:
@@ -47,10 +47,11 @@ class MessageDownloader(object):
                                  box = type,
                                  limit = 20,
                                  page = page)
-            if self.total == 0:
-                self.total = r['total']
+            # 20 messages per page because in messages/list there is no message text, but 
+            # messages/read accepts max 20 message ids 
+            if total == 0:
+                total = r['total']
             if not 'users' in r:
-                print r
                 break
             if not len(r['users']):
                 break
@@ -61,12 +62,13 @@ class MessageDownloader(object):
                 r['messages'][msg]['text'] = messages[msg]['text']
                 li.append(r['messages'][msg])
             page += 1
-            self.current += 20
+            current += 20
             if progress_callback:
-                progress_callback(self.current, self.total)
-            
+                progress_callback(current, total)
+                   
     def get_message_details(self, id, box):
-        # ugly hack, causes 1 HTTP req per message 
+        # ugly hack due API idiotic design
+        # lot of unneeded info to retrieve msg text
         result = self.call(action = 'messages/read',
                            box = box,
                            ids = id)
