@@ -19,18 +19,18 @@ def main():
     def progress_show(current, total):
         sys.stdout.write("%3d of %d\r" % (current, total))
         sys.stdout.flush()
-    print "[1/x] downloading inbox"
+    print "[1/4] downloading inbox"
     downloader.get_messages(type = 'in', progress_callback = progress_show)
-    print "[2/x] downloading outbox"
+    print "[2/4] downloading outbox"
     downloader.get_messages(type = 'out', progress_callback = progress_show)
-    print "[3/x] sorting messages"
+    print "[3/4] sorting messages"
     msgs =  downloader.get_all_messages()
     sys.stdout.write("Enter path: ")
     sys.stdout.flush()
     path = raw_input()
     if not os.path.exists(path):
         os.mkdir(path)
-    print "[4/x] writing"
+    print "[4/4] writing"
     for user in msgs:
         w = Writer(os.path.join(path, "%s.html" % (downloader.get_user_info(user).replace("/", ""))))
 

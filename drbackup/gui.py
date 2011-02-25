@@ -1,6 +1,7 @@
 #!/usr/bin/env python 
 # encoding: utf-8
 import sys
+import pygtk
 import gtk 
 
 class Login(gtk.Window):
@@ -12,8 +13,10 @@ class Login(gtk.Window):
         self.connect("destroy", gtk.main_quit)
         username = gtk.Label(u"E-pasts")
         password = gtk.Label(u"Parole")
+        directory = gtk.Label(u"mape")
         username_entry = gtk.Entry()
         password_entry = gtk.Entry()
+        directory_entry = gtk.FileSelection()
         login_button = gtk.Button(u"pieteikties")
         login_button.connect("clicked", self.on_login)
         fixed = gtk.Fixed()
@@ -21,10 +24,13 @@ class Login(gtk.Window):
         fixed.put(password, 30, 50)
         fixed.put(username_entry, 100, 20)
         fixed.put(password_entry, 100, 50)
-        fixed.put(login_button, 100, 100)
+        fixed.put(directory, 30, 70)
+        fixed.put(directory_entry, 100, 70)
+        #fixed.put(login_button, 100, 100)
         password_entry.set_visibility(False)
         self.username=username_entry
         self.password=password_entry
+
         self.add(fixed)
         self.show_all()
     def on_login(self,login_button):
